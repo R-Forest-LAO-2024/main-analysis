@@ -1,3 +1,8 @@
+## Custom gtiignore
+data/
+results/
+
+
 # History files
 .Rhistory
 .Rapp.history
