@@ -1,7 +1,8 @@
 ## Custom gtiignore
+data-source/
 data/
 results/
-
+report/
 
 # History files
 .Rhistory
@@ -52,3 +53,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+/.quarto/
