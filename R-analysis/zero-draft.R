@@ -4,7 +4,9 @@ library(tidyverse)
 library(sf)
 library(terra)
 library(readxl)
+library(tictoc)
 
+tic()
 path_datafile <- "data-source/NFI_Pilot_2024_20240510.xlsx"
 
 ## Create a category table for LC class
@@ -26,34 +28,34 @@ agb_models <- tibble(
 carbon_fraction <- 0.47
 
 ## make a list of circle geom_path objects for all treeplots
-treeplot_circles <-list(
-  gg_circle(center = c(0, 0), radius = 8, n = 100),
-  gg_circle(center = c(0, 0), radius = 16, n = 100)
-)
-
-plot_circles <- list(
-  ## A
-  gg_circle(center = c(0, 0), radius = 8, n = 100),
-  gg_circle(center = c(0, 0), radius = 16, n = 100),
-  ## B
-  gg_circle(center = c(0, 60), radius = 8, n = 100),
-  gg_circle(center = c(0, 60), radius = 16, n = 100),
-  ## C
-  gg_circle(center = c(0, 120), radius = 8, n = 100),
-  gg_circle(center = c(0, 120), radius = 16, n = 100),
-  ## D
-  gg_circle(center = c(0, 180), radius = 8, n = 100),
-  gg_circle(center = c(0, 180), radius = 16, n = 100),
-  ## E
-  gg_circle(center = c(60, 0), radius = 8, n = 100),
-  gg_circle(center = c(60, 0), radius = 16, n = 100),
-  ## F
-  gg_circle(center = c(120, 0), radius = 8, n = 100),
-  gg_circle(center = c(120, 0), radius = 16, n = 100),
-  ## G
-  gg_circle(center = c(180, 0), radius = 8, n = 100),
-  gg_circle(center = c(180, 0), radius = 16, n = 100)
-)
+# treeplot_circles <-list(
+#   gg_circle(center = c(0, 0), radius = 8, n = 100),
+#   gg_circle(center = c(0, 0), radius = 16, n = 100)
+# )
+# 
+# plot_circles <- list(
+#   ## A
+#   gg_circle(center = c(0, 0), radius = 8, n = 100),
+#   gg_circle(center = c(0, 0), radius = 16, n = 100),
+#   ## B
+#   gg_circle(center = c(0, 60), radius = 8, n = 100),
+#   gg_circle(center = c(0, 60), radius = 16, n = 100),
+#   ## C
+#   gg_circle(center = c(0, 120), radius = 8, n = 100),
+#   gg_circle(center = c(0, 120), radius = 16, n = 100),
+#   ## D
+#   gg_circle(center = c(0, 180), radius = 8, n = 100),
+#   gg_circle(center = c(0, 180), radius = 16, n = 100),
+#   ## E
+#   gg_circle(center = c(60, 0), radius = 8, n = 100),
+#   gg_circle(center = c(60, 0), radius = 16, n = 100),
+#   ## F
+#   gg_circle(center = c(120, 0), radius = 8, n = 100),
+#   gg_circle(center = c(120, 0), radius = 16, n = 100),
+#   ## G
+#   gg_circle(center = c(180, 0), radius = 8, n = 100),
+#   gg_circle(center = c(180, 0), radius = 16, n = 100)
+# )
   
 
 
@@ -214,30 +216,30 @@ tree <- tree_init |>
   )
 tree
 
-tree |>
-  #filter(plot_no == 2) |>
-  ggplot() +
-  geom_point(aes(x = tree_x, y = tree_y)) +
-  treeplot_circles +
-  coord_fixed() +
-  theme_bw()
+# tree |>
+#   #filter(plot_no == 2) |>
+#   ggplot() +
+#   geom_point(aes(x = tree_x, y = tree_y)) +
+#   treeplot_circles +
+#   coord_fixed() +
+#   theme_bw()
 
 tree |>
   ggplot() +
   geom_point(aes(x = tree_x_treeplot, y = tree_y_treeplot, color = plot_id)) +
-  plot_circles +
+  #plot_circles +
   coord_fixed() +
   theme_bw()
 
 ## For all plots
 length(unique(tree$plot_id))
-walk(sort(unique(tree$plot_id))[8], function(x){
+walk(sort(unique(tree$plot_id)), function(x){
   
   gg <- tree |>
     filter(plot_id == x) |>
     ggplot() +
     geom_point(aes(x = tree_x_treeplot, y = tree_y_treeplot, color = treeplot_no)) +
-    plot_circles +
+    #plot_circles +
     coord_fixed() +
     theme_bw() +
     labs(subtitle = paste0("Plot no: ", x))
@@ -316,11 +318,6 @@ table(tree$lc_class, useNA = "ifany")
 table(tree$lc_class_plot, useNA = "ifany")
 table(tree$lc_class, tree$lc_class_plot, useNA = "ifany")
 
-summary(tree$tree_dbh)
-summary(tree$tree_bole_height)
-summary(tree$tree_dbase)
-summary(tree$tree_dtop)
-table(tree$tree_class)
 
 
 ## Add AGB live trees
@@ -328,14 +325,7 @@ tree_agb <- tree |>
   mutate(
     treeplot_radius = if_else(tree_dbh < 30, 8, 16),
     treeplot_scale_factor = 10000 / (pi * treeplot_radius^2),
-    tree_agb = case_when(
-      tree_class == "live"               ~ param_a * tree_dbh^param_b,
-      tree_class == "dead class 1"       ~ 0.6 * exp(-1.499 + (2.148 * log(tree_dbh)) + (0.207 * (log(tree_dbh))^2) - (0.0281 * (log(tree_dbh))^3)),
-      tree_class == "dead class 2 short" ~ pi * tree_bole_height * 100 / 12 * (tree_dbase^2 + tree_dbase * tree_dtop + tree_dtop^2) * 0.6 * 0.001, ## Convert H to cm then wd in g.cm-3 with WD = 0.6 then g to kg with 0.001 
-      tree_class == "dead class 2 tall"  ~ pi * tree_bole_height * 100 / 12 * (tree_dbase^2 + tree_dbase * tree_dtop + tree_dtop^2) * 0.6 * 0.001,
-      TRUE ~ NA_real_
-    ),
-    stump_agb = if_else(tree_class == "dead class 3", (stump_diameter / 2)^2 * pi * stump_height * 0.57 * 0.001, NA_real_),
+    tree_agb = param_a * tree_dbh^param_b,
     ba_ha = pi * (tree_dbh/200)^2 * treeplot_scale_factor,
     tree_agb_ha = tree_agb * treeplot_scale_factor / 1000 ## AGB * scale_factor / ratio kg_to_ton
   )
@@ -356,7 +346,7 @@ dw_agb <- dw |>
 
 stump_agb <- stump |>
   mutate(
-    treeplot_radius = if_else(dw_dbh < 30, 8, 16),
+    treeplot_radius = if_else(stump_diameter < 30, 8, 16),
     treeplot_scale_factor = 10000 / (pi * treeplot_radius^2),
     stump_agb = (stump_diameter / 2)^2 * pi * stump_height * 0.57 * 0.001,
     stump_agb_ha = stump_agb * treeplot_scale_factor / 1000 ## AGB * scale_factor / ratio kg_to_ton
@@ -368,19 +358,16 @@ summary(tree_agb$tree_agb)
 
 tree_agb |> 
   ggplot() +
-  geom_point(aes(x = tree_dbh, y = tree_agb, color = tree_class, shape = tree_class)) +
+  geom_point(aes(x = tree_dbh, y = tree_agb, color = lc_class)) +
   theme_bw()
 
-tree_agb |> 
-  filter(tree_class != "dead class 3") |>
+dw_agb |> 
   ggplot() +
-  geom_point(aes(x = tree_dbh, y = tree_agb, color = tree_class)) +
-  facet_grid(plot_id ~ treeplot_no)
+  geom_point(aes(x = dw_dbh, y = dw_agb, color = dw_class))
 
 tree_agb |> 
-  filter(tree_class != "dead class 3") |>
   ggplot() +
-  geom_point(aes(x = tree_dbh, y = tree_agb, color = tree_class)) +
+  geom_point(aes(x = tree_dbh, y = tree_agb, color = lc_class)) +
   facet_wrap(~plot_id, ncol = 4) +
   theme(legend.position = "bottom") +
   labs(color = "")
@@ -390,19 +377,14 @@ tree_agb |>
   geom_point(aes(x = tree_dbh, y = tree_agb, color = lc_class))
 
 
-## Deadwood AGB
-dw_agb <- dw |>
-  
-
-treeplot_carbon <- tree_agb |>
-  #group_by(plot_id, treeplot_no, treeplot_id, lc_class, lc_type) |>
-  summarise(
-    tree_count = n(),
-    tree_count_ha = sum(treeplot_scale_factor),
-    treeplot_ba_ha = sum(ba_ha),
-    treeplot_agb_ha = sum(tree_agb_ha), 
-    .by = c(plot_id, treeplot_no, treeplot_id, lc_class, lc_type),
-    )
+# treeplot_carbon <- tree_agb |>
+#   summarise(
+#     tree_count = n(),
+#     tree_count_ha = sum(treeplot_scale_factor),
+#     treeplot_ba_ha = sum(ba_ha),
+#     treeplot_agb_ha = sum(tree_agb_ha), 
+#     .by = c(plot_id, treeplot_no, treeplot_id, lc_class, lc_type),
+#     )
 
 
 ## Calc treeplot level carbon
@@ -426,7 +408,7 @@ treeplot_carbon <- tree_agb |>
     ),
     treeplot_carbon_ag = treeplot_agb_ha * carbon_fraction,
     treeplot_carbon_live = (treeplot_agb_ha + treeplot_bgb_ha) * carbon_fraction,
-    treeplot_carbon_all =  (treeplot_agb_ha + treeplot_bgb_ha) * carbon_fraction
+    #treeplot_carbon_all =  (treeplot_agb_ha + treeplot_bgb_ha) * carbon_fraction
   )
 table(treeplot_carbon$plot_id)
 
@@ -493,3 +475,4 @@ forest_carbon |>
 
 write_csv(tree_agb, "data/tree.csv")
 
+toc()

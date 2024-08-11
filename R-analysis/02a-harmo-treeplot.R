@@ -1,7 +1,5 @@
 
 
-
-
 treeplot <- treeplot_init |>
   select(
     crew_lead = "plot_info/crew_lead",
@@ -13,7 +11,7 @@ treeplot <- treeplot_init |>
   ) |>
   filter(crew_lead != "QC") |>
   mutate(
-    plot_no = if_else(plot_no == 135, 13, plot_no),
+    #plot_no = if_else(plot_no == 135, 13, plot_no),
     plot_id = case_when(
       plot_no < 10 ~ paste0("0", plot_no),
       plot_no < 100 ~ as.character(plot_no),

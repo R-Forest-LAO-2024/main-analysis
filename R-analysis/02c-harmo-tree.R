@@ -6,9 +6,9 @@ tree <- tree_init |>
     tree_species_no = t_species_name, tree_species_local_name = t_species_other, tree_dbh = t_dbh, filename
   ) |>
   left_join(treeplot, by = "ONA_treeplot_id") |>
-  filter(!is.na(lc_class), treeplot_no != "H") |>
+  #filter(!is.na(lc_class), treeplot_no != "H") |>
   left_join(agb_models, by = "lc_class") |>
-  left_join(plot, by = "plot_id") |>
+  left_join(plot, by = "plot_no") |>
   mutate(
     tree_x = tree_distance * cos(pi/2 - tree_azimuth / 180 * pi),
     tree_y = tree_distance * sin(pi/2 - tree_azimuth / 180 * pi),

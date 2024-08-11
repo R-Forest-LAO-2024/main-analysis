@@ -26,3 +26,5 @@ gg_showplot <- function(center, vec_radius, n){
   })
   
 }
+
+
