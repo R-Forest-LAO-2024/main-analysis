@@ -34,7 +34,7 @@ treeplot_carbon <- tree_agb |>
   left_join(tmp_treeplot_stump, by = "treeplot_id") |>
   inner_join(treeplot, by = "treeplot_id") |>
   mutate(
-    treeplot_bgb_ha = case_when(
+    treeplot_rs = case_when(
       lc_class == "CF" & treeplot_agb_ha <  50 ~ 0.46,
       lc_class == "CF" & treeplot_agb_ha <= 150 ~ 0.32,
       lc_class == "CF" & treeplot_agb_ha >  150 ~ 0.23,
@@ -42,6 +42,7 @@ treeplot_carbon <- tree_agb |>
       lc_class != "CF" & treeplot_agb_ha >= 125 ~ 0.24,
       TRUE ~ NA_real_
     ),
+    treeplot_bgb_ha = treeplot_agb_ha * treeplot_rs,
     treeplot_carbon_ag = treeplot_agb_ha * carbon_fraction,
     treeplot_carbon_live = (treeplot_agb_ha + treeplot_bgb_ha) * carbon_fraction
   ) |> 
@@ -50,9 +51,6 @@ treeplot_carbon <- tree_agb |>
     treeplot_carbon_all =  sum(treeplot_agb_ha, treeplot_bgb_ha, treeplot_dw_agb_ha, treeplot_stump_agb_ha, na.rm = TRUE) * carbon_fraction
   ) |>
   ungroup()
-
-table(treeplot_carbon$plot_id, useNA = "ifany")
-tt <- treeplot_carbon |> select(plot_no, treeplot_id, treeplot_carbon_ag, treeplot_carbon_live, treeplot_carbon_all)
 
 
 rm(list = str_subset(ls(), "tmp"))
