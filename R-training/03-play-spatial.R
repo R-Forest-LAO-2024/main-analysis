@@ -65,6 +65,7 @@ sf_treeplot |>
 ##
 ## Interactive maps ######
 ##
+
 sf_treeplot <- treeplot |> 
   st_as_sf(coords = c("treeplot_gps_lon", "treeplot_gps_lat"), crs = 4326)
 
@@ -76,4 +77,7 @@ tm_shape(sf_lao) +
 tm_shape(sf_treeplot) +
   tm_symbols(fill = "treeplot_no", size = 0.5)
   
-  
+## !! EX
+## + What spatial data would you like to visualize?
+## !!
+
