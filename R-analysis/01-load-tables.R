@@ -93,44 +93,15 @@ tree_init <- map(vec_tree, function(x){
 tree_init
 
 
+## !! FOR TRAINING !!
+tree_init2 <- tree_init |>
+  filter(t_livedead == 1) |>
+  select(
+    ONA_treeplot_id, tree_no = t_nb, tree_stem_no = stem_nb, tree_distance = t_dist, tree_azimuth = t_az,
+    tree_species_no = t_species_name, tree_species_local_name = t_species_other, tree_dbh = t_dbh, filename
+  )
 
-# |>
-#   select(
-#     #plot_no = "plot_info/plot_code_nmbr", 
-#     treeplot_id = "plot_info/sub_plot", 
-#     lc_type = "lc_data/lc_type",
-#     lc_class = "lc_class/lc_class"
-#   ) |>
-#   mutate(
-#     treeplot_id = case_when(
-#       str_length(treeplot_id) == 2 ~ paste0("0", treeplot_id),
-#       str_length(treeplot_id) == 3 ~ treeplot_id,
-#       TRUE ~ NA_character_
-#     )
-#   )
-# treeplot_lc
+write_csv(tree_init2, "data/tree-initial.csv")
+rm(tree_init2)
+## !!
 
-# treeplot_index <- data_all |> 
-#   select(
-#     crew_lead = "plot_info/crew_lead",
-#     ONA_treeplot_id = "_index",
-#     plot_no = "plot_info/plot_code_nmbr", 
-#     treeplot_no = "plot_info/sub_plot",
-#     treeplot_gps_lat = "plot_GPS/_GPS_latitude",
-#     treeplot_gps_lon = "plot_GPS/_GPS_longitude",
-#   ) |>
-#   filter(crew_lead != "QC") |>
-#   mutate(
-#     plot_no = if_else(plot_no == 135, 13, plot_no),
-#     plot_id = case_when(
-#       plot_no < 10 ~ paste0("0", plot_no),
-#       plot_no < 100 ~ as.character(plot_no),
-#       TRUE ~ NA_character_
-#     ),
-#     treeplot_id = paste0(plot_id, treeplot_no)
-#   ) |>
-#   select(plot_id, plot_no, treeplot_id, treeplot_no, ONA_treeplot_id, treeplot_gps_lat, treeplot_gps_lon)
-# 
-# treeplot_info <- treeplot_index |>
-#   inner_join(treeplot_lc, by = "treeplot_id") |>
-#   arrange(plot_no, treeplot_no)

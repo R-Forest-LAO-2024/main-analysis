@@ -5,7 +5,7 @@ library(tidyverse)
 dir.create("results", showWarnings = FALSE)
 
 ## Load data
-tree <- read_csv("data/tree.csv")
+tree <- read_csv("data/tree-live.csv")
 
 ## Checks
 ## + Check names() to get all column names
@@ -94,7 +94,7 @@ tree |>
   geom_point(aes(x = tree_x_treeplot, y = tree_y_treeplot, color = filename)) +
   coord_fixed() +
   theme_bw() +
-  gg_treeplot_all +
+  #gg_treeplot_all +
   theme(legend.position = "none") +
   labs(
     x = "",

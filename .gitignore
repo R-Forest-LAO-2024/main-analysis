@@ -3,6 +3,7 @@ data-source/
 data/
 results/
 report/
+*.DS_Store
 
 # History files
 .Rhistory

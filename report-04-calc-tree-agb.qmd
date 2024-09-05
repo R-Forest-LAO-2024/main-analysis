@@ -1,0 +1,76 @@
+---
+title: "Session 04 - tree level calculations"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: false
+#| output: false
+
+source("R-training/04-calc-tree-agb-corr.R", local = TRUE)
+theme_set(theme_bw())
+```
+
+## Objective
+
+The objective of this script is:
+
+-   **Add aboveground biomass (AGB) in kg and in ton per ha for all live trees measured.**
+
+Additional considerations:
+
+-   AGB is not measured directly in the forest. It is calculated with allometric equations. In Lao PDR, for live trees, the equation is different for each land cover class (LC, coded `lc_class`).
+
+-   In the forest, LC class is not recorded for each tree but at the treeplot level.
+
+Steps for the calculation :
+
+1.  Load libraries. Key functions: `library()`.
+
+2.  Load data. Key functions: `read_csv()`.
+
+3.  Add AGB models. Key functions: `tibble()`, `rep()`.
+
+4.  Pass LC info from `treeplot` table to the `tree` table. Key functions: **`left`**`_join()`.
+
+5.  Calculate AGB with different equation parameters based on land cover class. Key functions: `mutate()`, `if_else()` and `case_when().`
+
+6.  Calculate the trees' scale factor and convert AGB to ton/ha. Key functions: `mutate()`, `if_else()`.
+
+7.  Make graphs and summary statistics. Key functions: `summary()`, `ggplot()`, `geom_point()`.
+
+# Expected outputs
+
+The result is a tree level table `tree_agb` containing AGB for each live tree. It can be checked with a `summary()` of tree AGB and a graph of tree AGB vs DBH and tree AGB vs basal area (BA in m^2^ per ha).
+
+Tree AGB stats:
+
+```{r}
+summary(tree_agb$tree_agb)
+```
+
+Tree AGB visual checks
+
+```{r}
+#| fig-cap: "Tree aboveground biomass against DBH and par ha values of tree AGB against BA."
+#| layout-ncol: 2
+
+ggplot(tree_agb) +
+  geom_point(aes(x = tree_dbh, y = tree_agb, color = lc_class))
+
+ggplot(tree_agb) +
+  geom_point(aes(x = tree_ba_ha, y = tree_agb_ha, color = lc_class))
+```
+
+# Practice joins
+
+In this section we will join few tables to the `tree` table.
+
+For example, we want to connect the table `treeplot` to the table `tree` .
+
+First we need to find the column name(s) that both tables have in common. For that we can print the column names of both tables:
+
+```{r}
+names(tree_init)
+```

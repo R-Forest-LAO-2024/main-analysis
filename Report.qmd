@@ -7,23 +7,19 @@ format:
 editor: visual
 ---
 
-## Quarto
+## Session 04 : tree level calculations
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+example 01: join `tree_init` with `treeplot`:
 
 ```{r}
-1 + 1
+names(tree_init)
+names(treeplot)
+
+tt <- left_join(tree_init)
 ```
 
-You can add options to executable code like this
+Exercise: join `tree_init` with `plot`
 
 ```{r}
-#| echo: false
-2 * 2
-```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```

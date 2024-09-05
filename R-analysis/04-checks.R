@@ -1,5 +1,22 @@
 
 
+tree |>
+  filter(plot_no == 2) |>
+  mutate(tree_dbh_lim = if_else(tree_dbh < 30, "small", " big")) |>
+  ggplot(aes(x = tree_distance, y = tree_azimuth)) +
+  geom_point(aes(color = tree_dbh_lim)) +
+  scale_x_continuous(breaks = c(0, 8, 16)) +
+  scale_y_continuous(breaks = c(0, 90, 180, 270), labels = c("N", "E", "S", "W"), limits = c(0, 360)) +
+  coord_polar(theta = "y") +
+  theme_bw() +
+  labs(
+    x = "", 
+    y = "",
+    color = "",
+    subtitle = "tree maps for plot 2"
+  )
+
+
 tt <- tree_agb |> 
   filter(plot_no == 4) |>
   summarise(

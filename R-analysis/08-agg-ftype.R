@@ -16,7 +16,7 @@ forest_carbon <- plot_carbon |>
     carbon_ag_cilower = carbon_ag - carbon_ag_me,
     carbon_ag_ciupper = carbon_ag + carbon_ag_me
   )
-
+print(forest_carbon)
 
 gg <- forest_carbon |>
   ggplot(aes(x = lc_class_plot)) +

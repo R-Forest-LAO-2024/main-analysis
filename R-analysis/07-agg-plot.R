@@ -20,7 +20,7 @@ gg <- plot_carbon |>
   labs(
     x = "Plot ID",
     y = "Carbon of aboveground live trees (tC/ha)",
-    ffill = ""
+    fill = ""
   )
 print(gg)
 
